@@ -1,5 +1,7 @@
 from django.db import models
 
+from .managers import OrderManager
+
 
 # Create your models here.
 class OrderCustomer(models.Model):
@@ -23,6 +25,8 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
     status = models.IntegerField(choices=ORDER_STATUS, default='1')
+
+    objects = OrderManager()
 
 
 class OrderItems(models.Model):
