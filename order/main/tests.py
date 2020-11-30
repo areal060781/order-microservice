@@ -7,6 +7,7 @@ from .models import OrderCustomer, Order
 from .status import Status
 
 from .exceptions import OrderAlreadyCompletedError
+from .exceptions import OrderAlreadyCancelledError
 from .exceptions import OrderCancellationError
 from .exceptions import InvalidArgumentError
 
@@ -125,3 +126,33 @@ class OrderModelTestCase(TestCase):
     def test_set_next_status_on_invalid_order(self):
         with self.assertRaises(InvalidArgumentError):
             Order.objects.set_next_status({'order': 1})
+
+    def test_set_status(self):
+        order = Order.objects.get(pk=1)
+
+        Order.objects.set_status(order, Status.Processing)
+
+        self.assertEqual(Status.Processing.value, order.Status)
+
+    def test_set_status_on_completed_order(self):
+        order = Order.objects.get(pk=2)
+
+        with self.assertRaises(OrderAlreadyCompletedError):
+            Order.objects.set_status(order, Status.Processing)
+
+    def test_set_status_on_cancelled_order(self):
+        order = Order.objects.get(pk=1)
+        Order.objects.cancel_order(order)
+
+        with self.assertRaises(OrderAlreadyCancelledError):
+            Order.objects.set_status(order, Status.Processing)
+
+    def test_set_status_with_invalid_order(self):
+        with self.assertRaises(InvalidArgumentError):
+            Order.objects.set_status(None, Status.Processing)
+
+    def test_set_status_with_invalid_status(self):
+        order = Order.objects.get(pk=1)
+
+        with self.assertRaises(InvalidArgumentError):
+            Order.objects.set_status(order, {'status': 1})
