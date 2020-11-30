@@ -80,3 +80,13 @@ class OrderModelTestCase(TestCase):
     def test_get_customer_completed_orders_with_invalid_id(self):
         with self.assertRaises(InvalidArgumentError):
             Order.objects.get_customer_complete_orders('o')
+
+    def test_get_order_by_status(self):
+        order = Order.objects.get_orders_by_status(Status.Received)
+
+        self.assertEqual(2, len(order), msg='There should be only 2 orders with status=Received.')
+        self.assertEqual('customer_001@test.com', order[0].order_customer.email)
+
+    def test_get_order_by_status_with_invalid_status(self):
+        with self.assertRaises(InvalidArgumentError):
+            Order.objects.get_orders_by_status(1)
