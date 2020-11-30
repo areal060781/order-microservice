@@ -22,11 +22,6 @@ Install Python dependencies
 pipenv install --dev
 ```
 
-Install Npm dependencies
-```sh
-npm install
-```
-
 Run the migrations
 ```
 (order-microservice) $ python manage.py migrate
