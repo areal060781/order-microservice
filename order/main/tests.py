@@ -90,3 +90,24 @@ class OrderModelTestCase(TestCase):
     def test_get_order_by_status_with_invalid_status(self):
         with self.assertRaises(InvalidArgumentError):
             Order.objects.get_orders_by_status(1)
+
+    def test_get_orders_by_period(self):
+        date_from = timezone.now() - relativedelta(days=1)
+        date_to = date_from + relativedelta(days=2)
+
+        orders = Order.objects.get_orders_by_period(date_from, date_to)
+
+        self.assertEqual(3, len(orders))
+
+        date_from = timezone.now() + relativedelta(days=3)
+        date_to = date_from + relativedelta(months=1)
+
+        orders = Order.objects.get_orders_by_period(date_from, date_to)
+
+        self.assertEqual(0, len(orders))
+
+    def test_get_orders_by_period_with_invalid_end_date(self):
+        end_date = timezone.now()
+
+        with self.assertRaises(InvalidArgumentError):
+            Order.objects.get_orders_by_period(None, end_date)
