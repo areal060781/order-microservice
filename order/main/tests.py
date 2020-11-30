@@ -111,3 +111,17 @@ class OrderModelTestCase(TestCase):
 
         with self.assertRaises(InvalidArgumentError):
             Order.objects.get_orders_by_period(None, end_date)
+
+    def test_set_next_status(self):
+        order = Order.objects.get(pk=1)
+
+        self.assertTrue(order is not None, msg='The order is None.')
+        self.assertEqual(Status.Received.value, order.status, msg='The status should have been Status.Received')
+
+        Order.objects.set_next_status(order)
+
+        self.assertEqual(Status.Processing.value, order.status, msg='The status should have been Status.Processing')
+
+    def test_set_next_status_on_invalid_order(self):
+        with self.assertRaises(InvalidArgumentError):
+            Order.objects.set_next_status({'order': 1})
