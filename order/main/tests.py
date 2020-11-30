@@ -70,3 +70,13 @@ class OrderModelTestCase(TestCase):
     def test_get_customer_incomplete_orders_with_invalid_id(self):
         with self.assertRaises(InvalidArgumentError):
             Order.objects.get_customer_incomplete_orders('o')
+
+    def test_get_customer_completed_orders(self):
+        orders = Order.objects.get_customer_complete_orders(customer_id=1)
+
+        self.assertEqual(1, len(orders))
+        self.assertEqual(Status.Completed.value, orders[0].status)
+
+    def test_get_customer_completed_orders_with_invalid_id(self):
+        with self.assertRaises(InvalidArgumentError):
+            Order.objects.get_customer_complete_orders('o')
