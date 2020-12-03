@@ -12,7 +12,7 @@ class OrderAlreadyCompletedError(Exception):
 
 class OrderAlreadyCancelledError(Exception):
     def __init__(self, order):
-        message = f'The order with Id {order.id} is already cancelled.'
+        message = f'The order with ID: {order.id} is already cancelled.'
         super().__init__(message)
 
 

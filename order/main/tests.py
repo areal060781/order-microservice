@@ -15,10 +15,10 @@ from .exceptions import InvalidArgumentError
 class OrderModelTestCase(TestCase):
 
     @classmethod
-    def setUPTestData(cls):
+    def setUpTestData(cls):
         cls.customer_001 = OrderCustomer.objects.create(
             customer_id=1,
-            email='customer_001@test.co,'
+            email='customer_001@test.com'
         )
 
         Order.objects.create(order_customer=cls.customer_001)
@@ -73,14 +73,14 @@ class OrderModelTestCase(TestCase):
             Order.objects.get_customer_incomplete_orders('o')
 
     def test_get_customer_completed_orders(self):
-        orders = Order.objects.get_customer_complete_orders(customer_id=1)
+        orders = Order.objects.get_customer_completed_orders(customer_id=1)
 
         self.assertEqual(1, len(orders))
         self.assertEqual(Status.Completed.value, orders[0].status)
 
     def test_get_customer_completed_orders_with_invalid_id(self):
         with self.assertRaises(InvalidArgumentError):
-            Order.objects.get_customer_complete_orders('o')
+            Order.objects.get_customer_completed_orders('o')
 
     def test_get_order_by_status(self):
         order = Order.objects.get_orders_by_status(Status.Received)
@@ -107,6 +107,12 @@ class OrderModelTestCase(TestCase):
 
         self.assertEqual(0, len(orders))
 
+    def test_get_orders_by_period_with_invalid_start_date(self):
+        start_date = timezone.now()
+
+        with self.assertRaises(InvalidArgumentError):
+            Order.objects.get_orders_by_period(start_date, None)
+
     def test_get_orders_by_period_with_invalid_end_date(self):
         end_date = timezone.now()
 
@@ -119,9 +125,11 @@ class OrderModelTestCase(TestCase):
         self.assertTrue(order is not None, msg='The order is None.')
         self.assertEqual(Status.Received.value, order.status, msg='The status should have been Status.Received')
 
-        Order.objects.set_next_status(order)
+    def test_set_next_status_on_completed_order(self):
+        order = Order.objects.get(pk=2)
 
-        self.assertEqual(Status.Processing.value, order.status, msg='The status should have been Status.Processing')
+        with self.assertRaises(OrderAlreadyCompletedError):
+            Order.objects.set_next_status(order=order)
 
     def test_set_next_status_on_invalid_order(self):
         with self.assertRaises(InvalidArgumentError):
@@ -132,13 +140,13 @@ class OrderModelTestCase(TestCase):
 
         Order.objects.set_status(order, Status.Processing)
 
-        self.assertEqual(Status.Processing.value, order.Status)
+        self.assertEqual(Status.Processing.value, order.status)
 
     def test_set_status_on_completed_order(self):
         order = Order.objects.get(pk=2)
 
         with self.assertRaises(OrderAlreadyCompletedError):
-            Order.objects.set_status(order, Status.Processing)
+            Order.objects.set_status(order=order, status=Status.Processing)
 
     def test_set_status_on_cancelled_order(self):
         order = Order.objects.get(pk=1)

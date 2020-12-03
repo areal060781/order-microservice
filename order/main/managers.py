@@ -1,15 +1,18 @@
 from datetime import datetime
 from django.db.models import Manager, Q
+
 from .status import Status
 
 from .exceptions import InvalidArgumentError
 from .exceptions import OrderAlreadyCompletedError
+from .exceptions import OrderAlreadyCancelledError
 from .exceptions import OrderCancellationError
 
 from . import models
 
 
 class OrderManager(Manager):
+
     def set_status(self, order, status):
         if status is None or not isinstance(status, Status):
             raise InvalidArgumentError('status')
@@ -18,7 +21,10 @@ class OrderManager(Manager):
             raise InvalidArgumentError('order')
 
         if order.status is Status.Completed.value:
-            raise OrderAlreadyCompletedError()
+            raise OrderAlreadyCompletedError(order)
+
+        if order.status is Status.Cancelled.value:
+            raise OrderAlreadyCancelledError(order)
 
         order.status = status.value
         order.save()
@@ -34,7 +40,9 @@ class OrderManager(Manager):
 
     def get_all_orders_by_customer(self, customer_id):
         try:
-            return self.filter(order_customer_id=customer_id).order_by('status', '-created_at')
+            return self.filter(
+                order_customer_id=customer_id).order_by(
+                'status', '-created_at')
         except ValueError:
             raise InvalidArgumentError('customer_id')
 
@@ -46,7 +54,7 @@ class OrderManager(Manager):
         except ValueError:
             raise InvalidArgumentError('customer_id')
 
-    def get_customer_complete_orders(self, customer_id):
+    def get_customer_completed_orders(self, customer_id):
         try:
             return self.filter(
                 status=Status.Completed.value,
@@ -75,7 +83,7 @@ class OrderManager(Manager):
             raise InvalidArgumentError('order')
 
         if order.status is Status.Completed.value:
-            raise OrderAlreadyCompletedError()
+            raise OrderAlreadyCompletedError(order)
 
         order.status += 1
         order.save()
