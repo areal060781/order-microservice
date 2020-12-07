@@ -41,7 +41,7 @@ def send_order(data):
         'Content-type': 'application/json'
     }
 
-    response = requests.put(
+    response = requests.post(
         'http://127.0.0.1:8000/api/order/add/',
         headers=headers,
         data=json.dumps(data))

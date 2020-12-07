@@ -1,18 +1,25 @@
 import functools
+
 from rest_framework import serializers
+
 from .models import Order, OrderItems, OrderCustomer
 
 
 class OrderCustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderCustomer
-        fields = ('customer_id', 'email', 'name',)
+        fields = ('customer_id', 'email', 'name', )
+
+    def create(self, validated_data):
+        order_item = OrderCustomer.objects.create(**validated_data)
+        order_item.save()
+        return order_item
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItems
-        fields = ('name', 'price_per_unit', 'product_id', 'quantity',)
+        fields = ('name', 'price_per_unit', 'product_id', 'quantity', )
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -20,11 +27,11 @@ class OrderSerializer(serializers.ModelSerializer):
     order_customer = OrderCustomerSerializer()
     status = serializers.SerializerMethodField()
 
-
-class Meta:
-    depth = 1
-    model = Order
-    fields = ('items', 'total', 'order_customer', 'created_at', 'id', 'status',)
+    class Meta:
+        depth = 1
+        model = Order
+        fields = ('items', 'total', 'order_customer',
+                  'created_at', 'id', 'status', )
 
     def get_status(self, obj):
         return obj.get_status_display()
