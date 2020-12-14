@@ -7,6 +7,10 @@ import requests
 
 
 def setUpData(order_id):
+    # data = {"items": [{"name": "Game 1", "price_per_unit": "15.00", "product_id": 1, "quantity": 1},
+    #                   {"name": "Game 4", "price_per_unit": "18.00", "product_id": 4, "quantity": 1}],
+    #         "order_customer": {"customer_id": 1, "email": "areal060781@gmail.com", "name": "Aida Real"},
+    #         "total": "33"}
     data = {
         "items": [
             {
@@ -35,14 +39,14 @@ def setUpData(order_id):
 
 
 def send_order(data):
-    token = 'd3a3b5b0e77c3173782dcfa8b8a2c47ddc692b7e'
+    token = '64054e1aff7f31b5e3401fbd26926242f66df1ad'
     headers = {
         'Authorization': f'Token {token}',
         'Content-type': 'application/json'
     }
 
     response = requests.post(
-        'http://127.0.0.1:8000/api/order/add/',
+        'http://127.0.0.1:8001/api/order/add/',
         headers=headers,
         data=json.dumps(data))
 
@@ -50,7 +54,7 @@ def send_order(data):
         print('Ops! Something went wrong!')
         sys.exit(1)
 
-    print('Request was successfull')
+    print('Request was successful')
 
 
 if __name__ == '__main__':
